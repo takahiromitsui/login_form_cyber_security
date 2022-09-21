@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { putSignup } from '../controllers/auth';
-import { encryptPassword } from '../helpers/auth';
+import { postLogin, putSignup } from '../controllers/auth';
+import { decryptPassword, encryptPassword } from '../helpers/auth';
 import { User } from '../models/user';
 
 const router = Router();
@@ -10,8 +10,16 @@ const users: User[] = [];
 router.put(
 	'/signup',
 	putSignup({
-		encryptFunc: encryptPassword,
 		database: users,
+		encryptFunc: encryptPassword,
+	})
+);
+
+router.post(
+	'/login',
+	postLogin({
+		database: users,
+		decryptFunc: decryptPassword,
 	})
 );
 
