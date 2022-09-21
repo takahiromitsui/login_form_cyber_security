@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "app.js",
 	"scripts": {
-		"dev": "tsc nodemon src/app.js"
+		"dev": "tsc && nodemon dist/app.js"
 	},
 	"author": "",
 	"license": "ISC",
