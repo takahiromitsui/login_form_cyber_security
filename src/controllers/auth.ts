@@ -34,6 +34,7 @@ export const putSignup = (signupConfig: SignupConfig): ExpressRouteFunc => {
 			res.status(401).json({
 				message: 'invalid input',
 			});
+			return
 		}
 
 		const data: User = {
@@ -61,16 +62,19 @@ export const postLogin = (loginConfig: LoginConfig): ExpressRouteFunc => {
 		if (!isValidEmail) {
 			customLogger(WinstonLevel.ERROR, 'User not found');
 			res.status(401).json({ message: 'Invalid email or password' });
+			return
 		}
 		const hashedPassword = users[0].hashedPassword;
 		const isEqual = await loginConfig.decryptFunc(password, hashedPassword);
 		if (typeof isEqual === 'string') {
 			customLogger(WinstonLevel.ERROR, isEqual);
 			res.status(500).json({ error: isEqual });
+			return
 		}
 		if (!isEqual) {
 			customLogger(WinstonLevel.ERROR, 'Wrong Password');
 			res.status(401).json({ message: 'Invalid email or password' });
+			return
 		}
 		const token = jwt.sign(
 			{
