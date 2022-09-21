@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { ExpressRouteFunc } from '.';
 import { customLogger, WinstonLevel } from '../logger';
 import { User } from '../models/user';
@@ -71,8 +72,21 @@ export const postLogin = (loginConfig: LoginConfig): ExpressRouteFunc => {
 			customLogger(WinstonLevel.ERROR, 'Wrong Password');
 			res.status(401).json({ message: 'Invalid email or password' });
 		}
-		res.status(201).json({
+		const token = jwt.sign(
+			{
+				id: users[0].id,
+				email: email,
+			},
+			'somelongsecret',
+			{
+				expiresIn: '1h',
+			}
+		);
+		customLogger(WinstonLevel.INFO, 'Successfully Login');
+		res.status(200).json({
 			message: 'successfully signup',
+			token: token,
+			userId: users[0].id,
 		});
 	};
 };
