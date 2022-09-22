@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { ExpressRouteFunc } from '.';
+import { CustomResponseType, ExpressRouteFunc } from '.';
 import { customLogger, WinstonLevel } from '../logger';
 import { User } from '../models/user';
 
@@ -18,7 +18,7 @@ interface LoginConfig {
 }
 
 export const putSignup = (signupConfig: SignupConfig): ExpressRouteFunc => {
-	return async (req: Request, res: Response) => {
+	return async (req: Request, res: CustomResponseType) => {
 		const id = req.body.id;
 		const email = req.body.email;
 		const password = req.body.password;
@@ -34,7 +34,7 @@ export const putSignup = (signupConfig: SignupConfig): ExpressRouteFunc => {
 			res.status(401).json({
 				message: 'invalid input',
 			});
-			return
+			return;
 		}
 
 		const data: User = {
@@ -52,7 +52,7 @@ export const putSignup = (signupConfig: SignupConfig): ExpressRouteFunc => {
 };
 
 export const postLogin = (loginConfig: LoginConfig): ExpressRouteFunc => {
-	return async (req: Request, res: Response) => {
+	return async (req: Request, res: CustomResponseType) => {
 		const email = req.body.email;
 		const password = req.body.password;
 		const users = loginConfig.database.filter((user: User) => {
@@ -62,19 +62,19 @@ export const postLogin = (loginConfig: LoginConfig): ExpressRouteFunc => {
 		if (!isValidEmail) {
 			customLogger(WinstonLevel.ERROR, 'User not found');
 			res.status(401).json({ message: 'Invalid email or password' });
-			return
+			return;
 		}
 		const hashedPassword = users[0].hashedPassword;
 		const isEqual = await loginConfig.decryptFunc(password, hashedPassword);
 		if (typeof isEqual === 'string') {
 			customLogger(WinstonLevel.ERROR, isEqual);
-			res.status(500).json({ error: isEqual });
-			return
+			res.status(500).json({ message: isEqual });
+			return;
 		}
 		if (!isEqual) {
 			customLogger(WinstonLevel.ERROR, 'Wrong Password');
 			res.status(401).json({ message: 'Invalid email or password' });
-			return
+			return;
 		}
 		const token = jwt.sign(
 			{
@@ -89,8 +89,10 @@ export const postLogin = (loginConfig: LoginConfig): ExpressRouteFunc => {
 		customLogger(WinstonLevel.INFO, 'Successfully Login');
 		res.status(200).json({
 			message: 'successfully signup',
-			token: token,
-			userId: users[0].id,
+			data: {
+				token: token,
+				userId: users[0].id,
+			},
 		});
 	};
 };
