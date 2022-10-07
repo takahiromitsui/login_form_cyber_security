@@ -1,6 +1,5 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { CustomResponseType, ExpressRouteFunc } from '.';
 import { customLogger, WinstonLevel } from '../logger';
 import { User } from '../models/user';
 
@@ -17,7 +16,7 @@ interface LoginConfig {
 	) => Promise<string | boolean>;
 }
 
-export const putSignup = (signupConfig: SignupConfig)=> {
+export const putSignup = (signupConfig: SignupConfig) => {
 	return async (req: Request, res: Response) => {
 		const id = req.body.id;
 		const email = req.body.email;
@@ -48,30 +47,30 @@ export const putSignup = (signupConfig: SignupConfig)=> {
 	};
 };
 
-export const postLogin = (loginConfig: LoginConfig): ExpressRouteFunc => {
-	return async (req: Request, res: CustomResponseType) => {
+export const postLogin = (loginConfig: LoginConfig) => {
+	return async (req: Request, res: Response) => {
 		const email = req.body.email;
 		const password = req.body.password;
+
 		const users = loginConfig.database.filter((user: User) => {
 			return user.email === email;
 		});
 		const isValidEmail = users.length !== 0;
 		if (!isValidEmail) {
 			customLogger(WinstonLevel.ERROR, 'User not found');
-			res.status(401).json({ message: 'Invalid email or password' });
-			return;
+			return res.status(401).json({ message: 'Invalid email or password' });	
 		}
+
 		const hashedPassword = users[0].hashedPassword;
 		const isEqual = await loginConfig.decryptFunc(password, hashedPassword);
 		if (typeof isEqual === 'string') {
 			customLogger(WinstonLevel.ERROR, isEqual);
-			res.status(500).json({ message: isEqual });
-			return;
+			return res.status(500).json({ message: isEqual });
 		}
+
 		if (!isEqual) {
 			customLogger(WinstonLevel.ERROR, 'Wrong Password');
-			res.status(401).json({ message: 'Invalid email or password' });
-			return;
+			return res.status(401).json({ message: 'Invalid email or password' });
 		}
 		const token = jwt.sign(
 			{

@@ -25,4 +25,3 @@ export const decodeToken = (secret: string, token?: string) => {
 	return userId;
 };
 
-decodeToken('random', 'random');

@@ -1,9 +1,19 @@
 import { expect } from 'chai';
 import { Request, Response } from 'express';
-import { putSignup } from '../../src/controllers/auth';
+import { postLogin, putSignup } from '../../src/controllers/auth';
 import { User } from '../../src/models/user';
 
-describe('put signup', () => {
+const mockRes = {
+	send: function () {},
+	json: function (res: Object) {
+		return res;
+	},
+	status: function (responseStatus: number) {
+		return this;
+	},
+};
+
+describe('putSignup', () => {
 	const mockEncryptFunc = async (
 		password: string,
 		saltRounds: number
@@ -17,16 +27,6 @@ describe('put signup', () => {
 			password: 'password',
 		},
 	} as Request;
-
-	const mockRes = {
-		send: function () {},
-		json: function (res: Object) {
-			return res;
-		},
-		status: function (responseStatus: number) {
-			return this;
-		},
-	};
 
 	it('should return error message', async () => {
 		const database: User[] = [
@@ -56,7 +56,7 @@ describe('put signup', () => {
 			database: database,
 			encryptFunc: mockEncryptFunc,
 		})(mockReq, mockRes as Response);
-		
+
 		expect(result).not.to.eql({ message: 'invalid input' });
 		expect(result).to.eql({
 			message: 'successfully signup',
@@ -67,4 +67,77 @@ describe('put signup', () => {
 			},
 		});
 	});
+});
+
+describe('postLogin', () => {
+	const mockDatabase: User[] = [
+		{
+			id: '0',
+			email: 'test@test.com',
+			hashedPassword: 'password',
+		},
+	];
+
+	const mockDecryptFunc = async (
+		password: string,
+		hashedPassword: string
+	): Promise<boolean> => {
+		return true;
+	};
+
+	it('should return error message by wrong email', async () => {
+		const mockReq = {
+			body: {
+				email: 'wrong@test.com',
+				password: 'password',
+			},
+		} as Request;
+		const result = await postLogin({
+			database: mockDatabase,
+			decryptFunc: mockDecryptFunc,
+		})(mockReq, mockRes as Response);
+		expect(result).to.eql({ message: 'Invalid email or password' });
+	});
+
+	it('should return error message by decrypt func error', async () => {
+		const mockReq = {
+			body: {
+				email: 'test@test.com',
+				password: 'password',
+			},
+		} as Request;
+		const mockErrorDecryptFunc = async (
+			password: string,
+			hashedPassword: string
+		): Promise<string> => {
+			return 'Something wrong with decrypt func';
+		};
+		const result = await postLogin({
+			database: mockDatabase,
+			decryptFunc: mockErrorDecryptFunc,
+		})(mockReq, mockRes as Response);
+		expect(result).to.eql({ message: 'Something wrong with decrypt func' });
+	});
+
+	it('should return error message by wrong password', async () => {
+		const mockReq = {
+			body: {
+				email: 'test@test.com',
+				password: 'wrongPassword',
+			},
+		} as Request;
+		const mockErrorDecryptFunc = async (
+			password: string,
+			hashedPassword: string
+		): Promise<boolean> => {
+			return false;
+		};
+
+		const result = await postLogin({
+			database: mockDatabase,
+			decryptFunc: mockErrorDecryptFunc,
+		})(mockReq, mockRes as Response);
+		expect(result).to.eql({ message: 'Invalid email or password' });
+	});
+	
 });
