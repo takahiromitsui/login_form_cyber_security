@@ -10,7 +10,7 @@ describe('put signup', () => {
 	): Promise<string> => {
 		return 'hashedPassword';
 	};
-	const req = {
+	const mockReq = {
 		body: {
 			id: '1',
 			email: 'test@test.com',
@@ -18,10 +18,10 @@ describe('put signup', () => {
 		},
 	} as Request;
 
-	const res = {
+	const mockRes = {
 		send: function () {},
-		json: function (message: Object) {
-			return message;
+		json: function (res: Object) {
+			return res;
 		},
 		status: function (responseStatus: number) {
 			return this;
@@ -40,7 +40,31 @@ describe('put signup', () => {
 		const result = await putSignup({
 			database: database,
 			encryptFunc: mockEncryptFunc,
-		})(req, res as Response);
+		})(mockReq, mockRes as Response);
 		expect(result).to.eql({ message: 'invalid input' });
+	});
+
+	it('should return success message', async () => {
+		const database: User[] = [
+			{
+				id: '0',
+				email: 'test2@test.com',
+				hashedPassword: 'password',
+			},
+		];
+		const result = await putSignup({
+			database: database,
+			encryptFunc: mockEncryptFunc,
+		})(mockReq, mockRes as Response);
+		
+		expect(result).not.to.eql({ message: 'invalid input' });
+		expect(result).to.eql({
+			message: 'successfully signup',
+			data: {
+				id: '1',
+				email: 'test@test.com',
+				hashedPassword: 'hashedPassword',
+			},
+		});
 	});
 });

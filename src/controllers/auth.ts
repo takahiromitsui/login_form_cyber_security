@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { CustomResponseType, ExpressRouteFunc } from '.';
 import { customLogger, WinstonLevel } from '../logger';
@@ -17,13 +17,11 @@ interface LoginConfig {
 	) => Promise<string | boolean>;
 }
 
-export const putSignup = (signupConfig: SignupConfig): ExpressRouteFunc => {
-	return async (req: Request, res: CustomResponseType) => {
+export const putSignup = (signupConfig: SignupConfig)=> {
+	return async (req: Request, res: Response) => {
 		const id = req.body.id;
 		const email = req.body.email;
 		const password = req.body.password;
-
-		const hashedPassword = await signupConfig.encryptFunc(password, 10);
 		// Later implement email is valid && password is secured enough
 		const users = signupConfig.database?.filter((user: User) => {
 			return user.email === email;
@@ -31,12 +29,11 @@ export const putSignup = (signupConfig: SignupConfig): ExpressRouteFunc => {
 		const isMatched = users.length !== 0;
 		if (isMatched) {
 			customLogger(WinstonLevel.ERROR, 'User already exist');
-			res.status(401).json({
+			return res.status(401).json({
 				message: 'invalid input',
 			});
-			return;
 		}
-
+		const hashedPassword = await signupConfig.encryptFunc(password, 10);
 		const data: User = {
 			id: id,
 			email: email,
@@ -44,7 +41,7 @@ export const putSignup = (signupConfig: SignupConfig): ExpressRouteFunc => {
 		};
 		customLogger(WinstonLevel.INFO, 'Send sign-up data');
 		signupConfig.database?.push(data);
-		res.status(201).json({
+		return res.status(201).json({
 			message: 'successfully signup',
 			data: data,
 		});
