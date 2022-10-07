@@ -1,5 +1,6 @@
 import { expect } from 'chai';
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { postLogin, putSignup } from '../../src/controllers/auth';
 import { User } from '../../src/models/user';
 
@@ -85,8 +86,16 @@ describe('postLogin', () => {
 		return true;
 	};
 
+	const mockGenerateToken = (
+		payload: string | object | Buffer,
+		secretOrPrivateKey: jwt.Secret,
+		options?: jwt.SignOptions | undefined
+	) => {
+		return 'new-token';
+	};
+
 	it('should return error message by wrong email', async () => {
-		const mockReq = {
+		const mockWrongReq = {
 			body: {
 				email: 'wrong@test.com',
 				password: 'password',
@@ -95,7 +104,8 @@ describe('postLogin', () => {
 		const result = await postLogin({
 			database: mockDatabase,
 			decryptFunc: mockDecryptFunc,
-		})(mockReq, mockRes as Response);
+			generateToken: mockGenerateToken,
+		})(mockWrongReq, mockRes as Response);
 		expect(result).to.eql({ message: 'Invalid email or password' });
 	});
 
@@ -115,12 +125,13 @@ describe('postLogin', () => {
 		const result = await postLogin({
 			database: mockDatabase,
 			decryptFunc: mockErrorDecryptFunc,
+			generateToken: mockGenerateToken,
 		})(mockReq, mockRes as Response);
 		expect(result).to.eql({ message: 'Something wrong with decrypt func' });
 	});
 
 	it('should return error message by wrong password', async () => {
-		const mockReq = {
+		const mockWrongReq = {
 			body: {
 				email: 'test@test.com',
 				password: 'wrongPassword',
@@ -136,8 +147,29 @@ describe('postLogin', () => {
 		const result = await postLogin({
 			database: mockDatabase,
 			decryptFunc: mockErrorDecryptFunc,
-		})(mockReq, mockRes as Response);
+			generateToken: mockGenerateToken,
+		})(mockWrongReq, mockRes as Response);
 		expect(result).to.eql({ message: 'Invalid email or password' });
 	});
-	
+
+	it('should return success message', async () => {
+		const mockReq = {
+			body: {
+				email: 'test@test.com',
+				password: 'password',
+			},
+		} as Request;
+		const result = await postLogin({
+			database: mockDatabase,
+			decryptFunc: mockDecryptFunc,
+			generateToken: mockGenerateToken,
+		})(mockReq, mockRes as Response);
+		expect(result).to.eql({
+			message: 'successfully signup',
+			data: {
+				token: 'new-token',
+				userId: '0',
+			},
+		});
+	});
 });

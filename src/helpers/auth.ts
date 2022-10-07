@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 export const encryptPassword = async (
 	password: string,
@@ -17,4 +18,12 @@ export const decryptPassword = async (
 	} catch (e) {
 		return (e as Error).message;
 	}
+};
+
+export const generateToken = (
+	payload: string | object | Buffer,
+	secretOrPrivateKey: jwt.Secret,
+	options?: jwt.SignOptions | undefined
+): string => {
+	return jwt.sign(payload, secretOrPrivateKey, options);
 };

@@ -14,6 +14,11 @@ interface LoginConfig {
 		password: string,
 		hashedPassword: string
 	) => Promise<string | boolean>;
+	generateToken: (
+		payload: string | object | Buffer,
+		secretOrPrivateKey: jwt.Secret,
+		options?: jwt.SignOptions | undefined
+	) => string;
 }
 
 export const putSignup = (signupConfig: SignupConfig) => {
@@ -58,7 +63,7 @@ export const postLogin = (loginConfig: LoginConfig) => {
 		const isValidEmail = users.length !== 0;
 		if (!isValidEmail) {
 			customLogger(WinstonLevel.ERROR, 'User not found');
-			return res.status(401).json({ message: 'Invalid email or password' });	
+			return res.status(401).json({ message: 'Invalid email or password' });
 		}
 
 		const hashedPassword = users[0].hashedPassword;
@@ -72,7 +77,7 @@ export const postLogin = (loginConfig: LoginConfig) => {
 			customLogger(WinstonLevel.ERROR, 'Wrong Password');
 			return res.status(401).json({ message: 'Invalid email or password' });
 		}
-		const token = jwt.sign(
+		const token = loginConfig.generateToken(
 			{
 				id: users[0].id,
 				email: email,
@@ -83,7 +88,7 @@ export const postLogin = (loginConfig: LoginConfig) => {
 			}
 		);
 		customLogger(WinstonLevel.INFO, 'Successfully Login');
-		res.status(200).json({
+		return res.status(200).json({
 			message: 'successfully signup',
 			data: {
 				token: token,
