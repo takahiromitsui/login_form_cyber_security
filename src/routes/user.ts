@@ -5,7 +5,7 @@ import { User } from '../models/user';
 
 const router = Router();
 const users: User[] = [];
-router.get('/info', getUser(users));
+router.get('/info', isAuth, getUser(users));
 
 
 export default router
