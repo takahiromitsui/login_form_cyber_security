@@ -1,4 +1,5 @@
-import { Request } from 'express';
+import { Request, Response } from 'express';
+import { NextFunction } from 'express-serve-static-core';
 import jwt from 'jsonwebtoken';
 import { customLogger, WinstonLevel } from '../logger';
 
@@ -25,3 +26,15 @@ export const decodeToken = (secret: string, token?: string) => {
 	return userId;
 };
 
+export interface IsAuthRequest extends Request {
+	userId: string;
+}
+
+export const isAuth = (req: Request, res: Response, next: NextFunction) => {
+	const token = getToken(req);
+	const userId = decodeToken('some', token);
+	if (!userId) return;
+	const userReq = req as IsAuthRequest;
+	userReq.userId = userId;
+	next();
+};
