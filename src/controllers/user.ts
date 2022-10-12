@@ -5,19 +5,27 @@ import { User } from '../models/user';
 
 export const getUser = (database: User[]) => {
 	return async (req: Request, res: Response) => {
-    const userReq = req as IsAuthRequest
+		const userReq = req as IsAuthRequest;
 		const userId = userReq.userId;
-		const selectedUsers = database.filter(user => {
-			return user.id === userId;
-		});
-		const { id, email } = selectedUsers[0];
-		const data = {
-			id: id,
-			email: email,
-		};
-		customLogger(WinstonLevel.INFO, 'Get user info');
-		return res.status(200).json({
-			data: data,
-		});
+		try {
+			const selectedUsers = database.filter(user => {
+				return user.id === userId;
+			});
+			if (!selectedUsers) {
+				throw new Error();
+			}
+			const { id, email } = selectedUsers[0];
+			const data = {
+				id: id,
+				email: email,
+			};
+			customLogger(WinstonLevel.INFO, 'Get user info');
+			return res.status(200).json({
+				data: data,
+			});
+		} catch (e) {
+			const error = e as Error;
+			customLogger(WinstonLevel.WARN, error.message);
+		}
 	};
 };
