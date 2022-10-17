@@ -1,10 +1,12 @@
 import bodyParser from 'body-parser';
 import express from 'express';
+import cors from 'cors';
 import { customLogger, WinstonLevel } from './logger';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 
 const app = express();
+app.use(cors())
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);

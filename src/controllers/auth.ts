@@ -23,7 +23,7 @@ interface LoginConfig {
 
 export const putSignup = (signupConfig: SignupConfig) => {
 	return async (req: Request, res: Response) => {
-		const id = req.body.id;
+		const id = new Date().toString();
 		const email = req.body.email;
 		const password = req.body.password;
 		// Later implement email is valid && password is secured enough
