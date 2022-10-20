@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { customLogger, WinstonLevel } from '../logger';
 import { User } from '../models/user';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 interface SignupConfig {
 	database: User[]; // This is a temporal database
@@ -82,7 +84,7 @@ export const postLogin = (loginConfig: LoginConfig) => {
 				id: users[0].id,
 				email: email,
 			},
-			'somelongsecret',
+			process.env.JWT_SECRET as string,
 			{
 				expiresIn: '1h',
 			}
