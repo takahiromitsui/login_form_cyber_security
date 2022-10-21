@@ -9,12 +9,12 @@ import { User } from '../models/user';
 
 const router = Router();
 
-const users: User[] = [];
+export const defaultDatabase: User[] = [];
 
 router.put(
 	'/signup',
 	putSignup({
-		database: users,
+		database: defaultDatabase,
 		encryptFunc: encryptPassword,
 	})
 );
@@ -22,7 +22,7 @@ router.put(
 router.post(
 	'/login',
 	postLogin({
-		database: users,
+		database: defaultDatabase,
 		decryptFunc: decryptPassword,
 		generateToken: generateToken,
 	})

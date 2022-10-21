@@ -2,10 +2,11 @@ import { request, Router } from 'express';
 import { getUser } from '../controllers/user';
 import { isAuth } from '../middleware/isAuth';
 import { User } from '../models/user';
+import { defaultDatabase } from './auth';
 
 const router = Router();
-const users: User[] = [];
-router.get('/info', isAuth, getUser(users));
+
+router.get('/info', isAuth, getUser(defaultDatabase));
 
 
 export default router
