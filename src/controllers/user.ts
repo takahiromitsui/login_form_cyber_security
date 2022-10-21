@@ -11,9 +11,6 @@ export const getUser = (database: User[]) => {
 			const selectedUsers = database.filter(user => {
 				return user.id === userId;
 			});
-			if (!selectedUsers) {
-				throw new Error();
-			}
 			const { id, email } = selectedUsers[0];
 			const data = {
 				id: id,
@@ -26,6 +23,9 @@ export const getUser = (database: User[]) => {
 		} catch (e) {
 			const error = e as Error;
 			customLogger(WinstonLevel.WARN, error.message);
+			return res.status(401).send({
+				message: error.message,
+			});
 		}
 	};
 };
