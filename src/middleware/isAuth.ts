@@ -19,20 +19,25 @@ export const decodeToken = (secret: string, token?: string) => {
 		customLogger(WinstonLevel.ERROR, 'token is undefined');
 		return;
 	}
-	const { id } = jwt.verify(token, process.env.JWT_SECRET as string) as JwtToken;
-	if (!id) {
-		customLogger(WinstonLevel.ERROR, 'cannot find userId');
+	try {
+		const { id } = jwt.verify(token, secret) as JwtToken;
+		return id;
+	} catch (e) {
+		const error = e as Error;
+		customLogger(WinstonLevel.ERROR, error.message);
 		return;
 	}
-	customLogger(WinstonLevel.INFO, 'can extract userId');
-	return id;
 };
 
 export interface IsAuthRequest extends Request {
 	userId: string;
 }
 
-export const isAuth = (req: Request, res: Response, next: NextFunction) => {
+export const isAuth = async (
+	req: Request,
+	res: Response,
+	next: NextFunction
+) => {
 	const token = getToken(req);
 	const userId = decodeToken(process.env.JWT_SECRET as string, token);
 	if (!userId) return;
