@@ -26,52 +26,36 @@ interface LoginConfig {
 
 export const putSignup = (signupConfig: SignupConfig) => {
 	return async (req: Request, res: Response) => {
-		const id = new Date().toString();
 		const email = req.body.email;
 		const password = req.body.password;
-		// Later implement email is valid && password is secured enough
-		// const users = signupConfig.database?.filter((user: User) => {
-		// 	return user.email === email;
-		// });
-		// const isMatched = users.length !== 0;
-		// if (isMatched) {
-		// 	customLogger(WinstonLevel.ERROR, 'User already exist');
-		// 	return res.status(401).json({
-		// 		message: 'invalid input',
-		// 	});
-		// }
 		const hashedPassword = await signupConfig.encryptFunc(password, 10);
-		const data: User = {
-			id: id,
-			email: email,
-			hashedPassword: hashedPassword,
-		};
+		// Later implement email is valid && password is secured enough
 		const user = new userModel({
 			email: email,
 			hashedPassword: hashedPassword,
 		});
-
-		user
-			.save()
-			.then((result: any) => {
-				console.log(result);
-				return res.status(201).json({
-					message: 'successfully signup',
-				});
-			})
-			.catch((e: Error) => {
-				customLogger(WinstonLevel.ERROR, e.message);
-				return res.status(500).json({
-					message: 'Something wrong',
-				});
+		try {
+			const existed = await userModel.findOne({
+				email: email,
 			});
-
-		// customLogger(WinstonLevel.INFO, 'Send sign-up data');
-		// signupConfig.database?.push(data);
-		// return res.status(201).json({
-		// 	message: 'successfully signup',
-		// 	data: data,
-		// });
+			if (existed) {
+				customLogger(WinstonLevel.ERROR, 'user already existed');
+				return res.status(401).json({
+					message: 'Invalid input',
+				});
+			}
+			await user.save();
+			customLogger(WinstonLevel.HTTP, 'successfully signup');
+			return res.status(201).json({
+				message: 'successfully signup',
+			});
+		} catch (e) {
+			const error = e as Error;
+			customLogger(WinstonLevel.ERROR, error.message);
+			return res.status(500).json({
+				message: 'something wrong with database',
+			});
+		}
 	};
 };
 
