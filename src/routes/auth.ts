@@ -6,11 +6,7 @@ import {
 	generateToken,
 } from '../helpers/auth';
 import { checkEmail, checkPassword } from '../middleware/validation';
-import { User } from '../models/user';
 const router = Router();
-
-export const defaultDatabase: User[] = [];
-
 
 router.put(
 	'/signup',

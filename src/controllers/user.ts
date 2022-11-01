@@ -1,22 +1,26 @@
 import { Request, Response } from 'express';
 import { customLogger, WinstonLevel } from '../logger';
 import { IsAuthRequest } from '../middleware/isAuth';
-import { User } from '../models/user';
+import userModel from '../models/user';
 
-export const getUser = (database: User[]) => {
+export const getUser = () => {
 	return async (req: Request, res: Response) => {
 		const userReq = req as IsAuthRequest;
 		const userId = userReq.userId;
 		try {
-			const selectedUsers = database.filter(user => {
-				return user.id === userId;
-			});
-			const { id, email } = selectedUsers[0];
+			const selected = await userModel.findById(userId);
+			if (!selected) {
+				customLogger(WinstonLevel.ERROR, 'cannot fetch user info');
+				return res.status(401).send({
+					message: 'something went wrong',
+				});
+			}
+			const { email, createdAt } = selected;
 			const data = {
-				id: id,
 				email: email,
+				createdAt: createdAt,
 			};
-			customLogger(WinstonLevel.INFO, 'Get user info');
+			customLogger(WinstonLevel.INFO, 'got user info');
 			return res.status(200).json({
 				data: data,
 			});

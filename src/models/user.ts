@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 
 export type User = {
 	id: string;
@@ -6,9 +6,15 @@ export type User = {
 	hashedPassword: string;
 };
 
+interface UserInterface {
+	email: string;
+	hashedPassword: string;
+	createdAt: number;
+}
+
 const Schema = mongoose.Schema;
 
-const userSchema = new Schema(
+const userSchema = new Schema<UserInterface, Model<UserInterface>>(
 	{
 		email: {
 			type: String,

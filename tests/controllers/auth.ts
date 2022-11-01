@@ -102,7 +102,7 @@ describe('postLogin', () => {
 			},
 		} as Request;
 		const result = await postLogin({
-			database: mockDatabase,
+			// database: mockDatabase,
 			decryptFunc: mockDecryptFunc,
 			generateToken: mockGenerateToken,
 		})(mockWrongReq, mockRes as Response);
@@ -123,7 +123,7 @@ describe('postLogin', () => {
 			return 'Something wrong with decrypt func';
 		};
 		const result = await postLogin({
-			database: mockDatabase,
+			// database: mockDatabase,
 			decryptFunc: mockErrorDecryptFunc,
 			generateToken: mockGenerateToken,
 		})(mockReq, mockRes as Response);
@@ -145,7 +145,7 @@ describe('postLogin', () => {
 		};
 
 		const result = await postLogin({
-			database: mockDatabase,
+			// database: mockDatabase,
 			decryptFunc: mockErrorDecryptFunc,
 			generateToken: mockGenerateToken,
 		})(mockWrongReq, mockRes as Response);
@@ -160,7 +160,7 @@ describe('postLogin', () => {
 			},
 		} as Request;
 		const result = await postLogin({
-			database: mockDatabase,
+			// database: mockDatabase,
 			decryptFunc: mockDecryptFunc,
 			generateToken: mockGenerateToken,
 		})(mockReq, mockRes as Response);
