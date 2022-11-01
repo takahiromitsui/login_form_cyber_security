@@ -39,7 +39,7 @@ describe('putSignup', () => {
 		];
 
 		const result = await putSignup({
-			database: database,
+			// database: database,
 			encryptFunc: mockEncryptFunc,
 		})(mockReq, mockRes as Response);
 		expect(result).to.eql({ message: 'invalid input' });
@@ -54,7 +54,7 @@ describe('putSignup', () => {
 			},
 		];
 		const result = await putSignup({
-			database: database,
+			// database: database,
 			encryptFunc: mockEncryptFunc,
 		})(mockReq, mockRes as Response);
 

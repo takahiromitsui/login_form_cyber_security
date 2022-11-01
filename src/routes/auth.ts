@@ -5,7 +5,7 @@ import {
 	encryptPassword,
 	generateToken,
 } from '../helpers/auth';
-import { User } from '../models/user';
+import userModel, { User } from '../models/user';
 
 const router = Router();
 
@@ -14,7 +14,7 @@ export const defaultDatabase: User[] = [];
 router.put(
 	'/signup',
 	putSignup({
-		database: defaultDatabase,
+		// database: userModel,
 		encryptFunc: encryptPassword,
 	})
 );

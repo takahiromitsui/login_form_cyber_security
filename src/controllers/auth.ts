@@ -1,12 +1,13 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { customLogger, WinstonLevel } from '../logger';
-import { User } from '../models/user';
+import userModel, { User } from '../models/user';
 import * as dotenv from 'dotenv';
+import mongoose from 'mongoose';
 dotenv.config();
 
 interface SignupConfig {
-	database: User[]; // This is a temporal database
+	// database: User[]; // This is a temporal database
 	encryptFunc: (password: string, saltRounds: number) => Promise<string>;
 }
 
@@ -29,28 +30,48 @@ export const putSignup = (signupConfig: SignupConfig) => {
 		const email = req.body.email;
 		const password = req.body.password;
 		// Later implement email is valid && password is secured enough
-		const users = signupConfig.database?.filter((user: User) => {
-			return user.email === email;
-		});
-		const isMatched = users.length !== 0;
-		if (isMatched) {
-			customLogger(WinstonLevel.ERROR, 'User already exist');
-			return res.status(401).json({
-				message: 'invalid input',
-			});
-		}
+		// const users = signupConfig.database?.filter((user: User) => {
+		// 	return user.email === email;
+		// });
+		// const isMatched = users.length !== 0;
+		// if (isMatched) {
+		// 	customLogger(WinstonLevel.ERROR, 'User already exist');
+		// 	return res.status(401).json({
+		// 		message: 'invalid input',
+		// 	});
+		// }
 		const hashedPassword = await signupConfig.encryptFunc(password, 10);
 		const data: User = {
 			id: id,
 			email: email,
 			hashedPassword: hashedPassword,
 		};
-		customLogger(WinstonLevel.INFO, 'Send sign-up data');
-		signupConfig.database?.push(data);
-		return res.status(201).json({
-			message: 'successfully signup',
-			data: data,
+		const user = new userModel({
+			email: email,
+			hashedPassword: hashedPassword,
 		});
+
+		user
+			.save()
+			.then((result: any) => {
+				console.log(result);
+				return res.status(201).json({
+					message: 'successfully signup',
+				});
+			})
+			.catch((e: Error) => {
+				customLogger(WinstonLevel.ERROR, e.message);
+				return res.status(500).json({
+					message: 'Something wrong',
+				});
+			});
+
+		// customLogger(WinstonLevel.INFO, 'Send sign-up data');
+		// signupConfig.database?.push(data);
+		// return res.status(201).json({
+		// 	message: 'successfully signup',
+		// 	data: data,
+		// });
 	};
 };
 
