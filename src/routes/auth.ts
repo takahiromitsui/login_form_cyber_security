@@ -17,7 +17,6 @@ router.put(
 	checkEmail,
 	checkPassword,
 	putSignup({
-		// database: userModel,
 		encryptFunc: encryptPassword,
 	})
 );

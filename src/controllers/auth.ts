@@ -7,7 +7,6 @@ import mongoose from 'mongoose';
 dotenv.config();
 
 interface SignupConfig {
-	// database: User[]; // This is a temporal database
 	encryptFunc: (password: string, saltRounds: number) => Promise<string>;
 }
 
@@ -29,7 +28,6 @@ export const putSignup = (signupConfig: SignupConfig) => {
 		const email = req.body.email;
 		const password = req.body.password;
 		const hashedPassword = await signupConfig.encryptFunc(password, 10);
-		// Later implement email is valid && password is secured enough
 		const user = new userModel({
 			email: email,
 			hashedPassword: hashedPassword,
