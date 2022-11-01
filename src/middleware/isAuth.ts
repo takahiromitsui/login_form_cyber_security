@@ -40,7 +40,7 @@ export const isAuth = async (
 ) => {
 	const token = getToken(req);
 	const userId = decodeToken(process.env.JWT_SECRET as string, token);
-	if (!userId) return;
+	if (!userId) return next();
 	const userReq = req as IsAuthRequest;
 	userReq.userId = userId;
 	next();
