@@ -3,7 +3,6 @@ import jwt from 'jsonwebtoken';
 import { customLogger, WinstonLevel } from '../logger';
 import userModel, { User } from '../models/user';
 import * as dotenv from 'dotenv';
-import mongoose from 'mongoose';
 dotenv.config();
 
 interface SignupConfig {
@@ -11,7 +10,6 @@ interface SignupConfig {
 }
 
 interface LoginConfig {
-	database: User[];
 	decryptFunc: (
 		password: string,
 		hashedPassword: string
@@ -61,44 +59,43 @@ export const postLogin = (loginConfig: LoginConfig) => {
 	return async (req: Request, res: Response) => {
 		const email = req.body.email;
 		const password = req.body.password;
-
-		const users = loginConfig.database.filter((user: User) => {
-			return user.email === email;
-		});
-		const isValidEmail = users.length !== 0;
-		if (!isValidEmail) {
-			customLogger(WinstonLevel.ERROR, 'User not found');
-			return res.status(401).json({ message: 'Invalid email or password' });
-		}
-
-		const hashedPassword = users[0].hashedPassword;
-		const isEqual = await loginConfig.decryptFunc(password, hashedPassword);
-		if (typeof isEqual === 'string') {
-			customLogger(WinstonLevel.ERROR, isEqual);
-			return res.status(500).json({ message: isEqual });
-		}
-
-		if (!isEqual) {
-			customLogger(WinstonLevel.ERROR, 'Wrong Password');
-			return res.status(401).json({ message: 'Invalid email or password' });
-		}
-		const token = loginConfig.generateToken(
-			{
-				id: users[0].id,
+		try {
+			const user = await userModel.findOne({
 				email: email,
-			},
-			process.env.JWT_SECRET as string,
-			{
-				expiresIn: '1h',
+			});
+			if (!user) {
+				customLogger(WinstonLevel.ERROR, 'user not found');
+				return res.status(401).json({ message: 'invalid email or password' });
 			}
-		);
-		customLogger(WinstonLevel.INFO, 'Successfully Login');
-		return res.status(200).json({
-			message: 'successfully signup',
-			data: {
-				token: token,
-				userId: users[0].id,
-			},
-		});
+			const { id, hashedPassword } = user;
+			const isEqual = await loginConfig.decryptFunc(password, hashedPassword);
+			if (typeof isEqual === 'string') {
+				customLogger(WinstonLevel.ERROR, isEqual);
+				return res.status(500).json({ message: isEqual });
+			}
+			if (!isEqual) {
+				customLogger(WinstonLevel.ERROR, 'wrong Password');
+				return res.status(401).json({ message: 'invalid email or password' });
+			}
+			const token = loginConfig.generateToken(
+				{
+					id: id,
+				},
+				process.env.JWT_SECRET as string,
+				{
+					expiresIn: '1h',
+				}
+			);
+			customLogger(WinstonLevel.HTTP, 'successfully login');
+			return res.status(200).json({
+				message: 'successfully signup',
+				data: {
+					token: token,
+				},
+			});
+		} catch (e) {
+			const error = e as Error;
+			return res.status(401).json({ message: error.message });
+		}
 	};
 };

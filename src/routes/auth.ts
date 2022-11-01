@@ -6,11 +6,11 @@ import {
 	generateToken,
 } from '../helpers/auth';
 import { checkEmail, checkPassword } from '../middleware/validation';
-import userModel, { User } from '../models/user';
-
+import { User } from '../models/user';
 const router = Router();
 
 export const defaultDatabase: User[] = [];
+
 
 router.put(
 	'/signup',
@@ -23,8 +23,9 @@ router.put(
 
 router.post(
 	'/login',
+	checkEmail,
+	checkPassword,
 	postLogin({
-		database: defaultDatabase,
 		decryptFunc: decryptPassword,
 		generateToken: generateToken,
 	})
