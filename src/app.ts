@@ -1,6 +1,7 @@
 import bodyParser from 'body-parser';
 import express from 'express';
 import { customLogger, WinstonLevel } from './logger';
+import mainRoutes from './routes/main';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import mongoose from 'mongoose';
@@ -12,8 +13,7 @@ dotenv.config();
 
 const app = express();
 
-const whitelist = handleWhitelist()
-
+const whitelist = handleWhitelist();
 
 const corsOptions = {
 	origin: function (origin: any, callback: any) {
@@ -26,6 +26,7 @@ const corsOptions = {
 };
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(mainRoutes);
 app.use('/auth', cors(corsOptions), authRoutes);
 app.use('/user', cors(corsOptions), userRoutes);
 app.use(helmet());
