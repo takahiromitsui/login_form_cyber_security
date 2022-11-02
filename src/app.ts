@@ -36,8 +36,9 @@ mongoose
 		`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.fin4zdy.mongodb.net/security`
 	)
 	.then(res => {
-		app.listen(process.env.PORT || 8080);
-		customLogger(WinstonLevel.INFO, 'Running on port 8080');
+		const port = process.env.PORT || 80;
+		app.listen(port);
+		customLogger(WinstonLevel.INFO, `Running on port ${port}`);
 	})
 	.catch(e => {
 		const error = e as Error;
