@@ -6,12 +6,28 @@ import userRoutes from './routes/user';
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import helmet from 'helmet';
+import cors from 'cors';
+import { handleWhitelist } from './helpers/envHandler';
 dotenv.config();
 
 const app = express();
+
+const whitelist = handleWhitelist()
+
+
+const corsOptions = {
+	origin: function (origin: any, callback: any) {
+		if (whitelist.indexOf(origin) !== -1) {
+			callback(null, true);
+		} else {
+			callback(new Error('Not allowed by CORS'));
+		}
+	},
+};
+
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/auth', authRoutes);
-app.use('/user', userRoutes);
+app.use('/auth', cors(corsOptions), authRoutes);
+app.use('/user', cors(corsOptions), userRoutes);
 app.use(helmet());
 
 mongoose

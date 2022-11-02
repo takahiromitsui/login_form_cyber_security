@@ -4,9 +4,9 @@
 	"description": "",
 	"main": "app.js",
 	"scripts": {
-		"dev": "tsc && nodemon dist/app.js",
+		"dev": "tsc && NODE_ENV=development nodemon dist/app.js",
 		"test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'",
-		"start": "tsc && node dist/app.js"
+		"start": "tsc && NODE_ENV=production node dist/app.js"
 	},
 	"author": "",
 	"license": "ISC",
