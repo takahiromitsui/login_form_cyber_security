@@ -1,18 +1,18 @@
 import bodyParser from 'body-parser';
 import express from 'express';
-import cors from 'cors';
 import { customLogger, WinstonLevel } from './logger';
 import authRoutes from './routes/auth';
 import userRoutes from './routes/user';
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
+import helmet from 'helmet';
 dotenv.config();
 
 const app = express();
-app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
+app.use(helmet());
 
 mongoose
 	.connect(
