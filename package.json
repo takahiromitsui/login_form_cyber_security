@@ -3,6 +3,9 @@
 	"version": "1.0.0",
 	"description": "",
 	"main": "app.js",
+	"engine": {
+		"node": "v16.14.0"
+	},
 	"scripts": {
 		"dev": "tsc && NODE_ENV=development nodemon dist/app.js",
 		"test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha -r ts-node/register 'tests/**/*.ts'",
