@@ -1,7 +1,7 @@
 
 # Secure Login Form API
 
-[Secure Login Form API](https://cyber-security-form-frontend.vercel.app) has been developed for the secure Login form([Github](https://github.com/takahiromitsui/cyber-security-form-frontend) and [App](https://cyber-security-form-frontend.vercel.app/)). The purpose of this API is to demonstrate security implmentation for the Login form and keep things as simple as possible.
+[Secure Login Form API](https://security-login-restapi.herokuapp.com) has been developed for the secure Login form([Github](https://github.com/takahiromitsui/cyber-security-form-frontend) and [App](https://cyber-security-form-frontend.vercel.app/)). The purpose of this API is to demonstrate security implmentation for the Login form and keep things as simple as possible.
 
 
 ## Security
@@ -81,7 +81,7 @@ Start the production server
 #### Post login
 
 ```http
-  PUT /auth/login
+  POST /auth/login
 ```
 
 | Parameter | Type     | Description                       |
