@@ -8,22 +8,28 @@ import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import helmet from 'helmet';
 import cors from 'cors';
-import { handleWhitelist } from './helpers/envHandler';
 dotenv.config();
 
 const app = express();
 
-const whitelist = handleWhitelist();
+const whitelist = [
+	process.env.POSSIBLE_ORIGIN_URL1,
+	process.env.POSSIBLE_ORIGIN_URL2,
+	process.env.POSSIBLE_ORIGIN_URL3,
+];
 
-const corsOptions = {
-	origin: function (origin: any, callback: any) {
-		if (whitelist.indexOf(origin) !== -1) {
-			callback(null, true);
-		} else {
-			callback(new Error('Not allowed by CORS'));
-		}
-	},
-};
+const corsOptions =
+	!process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+		? undefined
+		: {
+				origin: function (origin: any, callback: any) {
+					if (whitelist.indexOf(origin) !== -1) {
+						callback(null, true);
+					} else {
+						callback(new Error('Not allowed by CORS'));
+					}
+				},
+		  };
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(mainRoutes);
