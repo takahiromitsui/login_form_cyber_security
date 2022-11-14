@@ -11,7 +11,7 @@
 - CORS/White list(ref: src/helpers/app.ts)
 - Monitor vulnerability by [sonarCloud](https://sonarcloud.io)
 
-## Thread Model
+## Threat Model
 
 ![login_thread_model](https://user-images.githubusercontent.com/78789212/201642380-8e0374c2-3872-4ede-8de9-608b2fa1c71f.png)
 
