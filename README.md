@@ -11,6 +11,10 @@
 - CORS/White list(ref: src/helpers/app.ts)
 - Monitor vulnerability by [sonarCloud](https://sonarcloud.io)
 
+## Threat Model
+
+![login_thread_model](https://user-images.githubusercontent.com/78789212/201642380-8e0374c2-3872-4ede-8de9-608b2fa1c71f.png)
+
 ## Deployment
 
 This API has been hosted on Heroku server [here](https://security-login-restapi.herokuapp.com). If you try to send requests to the hosted API by postman, you'll be denied because of CORS. Only [Secure Login Frontnd](https://cyber-security-form-frontend.vercel.app) can connect to the hosted API.
