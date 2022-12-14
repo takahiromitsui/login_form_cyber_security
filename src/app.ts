@@ -32,10 +32,10 @@ const corsOptions =
 		  };
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(helmet());
 app.use(mainRoutes);
 app.use('/auth', cors(corsOptions), authRoutes);
 app.use('/user', cors(corsOptions), userRoutes);
-app.use(helmet());
 
 mongoose
 	.connect(
